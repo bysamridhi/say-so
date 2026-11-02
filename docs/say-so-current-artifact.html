@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Say So — A Live Cultural Probe</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --yellow:#F6C90E; --yellow-deep:#E8B700; --ink:#141414; --paper:#FFFDF6; --white:#ffffff;
+  --accent:#FF4D6D; --accent-deep:#E03354; --mu:#6b6456; --lock:#9c9586;
+  color-scheme: light; box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;min-height:100%;background:var(--yellow);color:var(--ink);font-family:'Space Grotesk',sans-serif;overflow-x:hidden}
+h1,h2,h3,.disp{font-family:'Archivo Black',sans-serif;text-transform:uppercase;letter-spacing:-0.01em}
+[hidden]{display:none!important}
+button{font-family:inherit;cursor:pointer;border:none}
+::selection{background:var(--accent);color:#fff}
+
+/* ===== header ===== */
+#siteHeader{background:var(--ink);padding:calc(26px + env(safe-area-inset-top,0px)) 20px 22px;position:relative;overflow:hidden}
+#siteHeader::before{content:"";position:absolute;top:-40px;right:-40px;width:160px;height:160px;border-radius:50%;background:var(--accent);opacity:.18}
+#siteHeader::after{content:"";position:absolute;bottom:-60px;left:-30px;width:140px;height:140px;border-radius:50%;background:var(--yellow);opacity:.12}
+.brand-row{display:flex;align-items:center;gap:10px;position:relative;z-index:1}
+.brand-mark{width:38px;height:38px;flex:0 0 auto}
+#siteHeader h1{color:var(--yellow);font-size:clamp(28px,8vw,40px);line-height:.92;margin:0;position:relative;z-index:1}
+#siteHeader h1 span{color:var(--accent)}
+.tagline{color:var(--white);opacity:.82;font-size:13.5px;margin:10px 0 0;max-width:46ch;position:relative;z-index:1;line-height:1.5}
+.header-meta{display:flex;gap:16px;margin-top:14px;position:relative;z-index:1;flex-wrap:wrap}
+.header-meta .m{font-size:11px;color:var(--yellow);font-family:'Archivo Black',sans-serif;letter-spacing:.03em}
+
+/* sticky nav */
+#tabbar{position:sticky;top:0;z-index:30;background:var(--ink);padding:10px 14px;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;border-top:2px solid #2a2a2a}
+#tabbar::-webkit-scrollbar{display:none}
+.tab{flex:0 0 auto;background:transparent;color:var(--yellow);border:2px solid var(--yellow);border-radius:999px;padding:8px 14px;font-family:'Archivo Black',sans-serif;font-size:11.5px;letter-spacing:.02em;transition:transform .15s, background .2s;display:flex;align-items:center;gap:6px}
+.tab.active{background:var(--accent);color:#fff;border-color:var(--accent-deep)}
+.tab.locked{color:var(--lock);border-color:var(--lock);opacity:.7}
+.tab:active{transform:scale(.95)}
+.tab .lockicon{width:11px;height:11px}
+
+main{max-width:720px;margin:0 auto;padding:22px 18px 70px}
+
+/* day intro */
+.day-head{margin-bottom:16px}
+.day-head .label{display:inline-flex;align-items:center;gap:8px;background:var(--ink);color:var(--yellow);font-family:'Archivo Black',sans-serif;font-size:12px;padding:4px 10px;border-radius:4px;margin-bottom:10px;transform:rotate(-2deg)}
+.day-head h2{font-size:clamp(26px,7.5vw,38px);line-height:1.02;margin:0 0 8px}
+.day-head p{margin:0 0 6px;font-size:14.5px;line-height:1.5;color:var(--ink);opacity:.8;max-width:52ch}
+.day-head .note{font-size:12.5px;color:var(--ink);opacity:.7;font-style:italic;margin-top:6px}
+
+/* prompt card */
+.card{background:var(--white);border:3px solid var(--ink);border-radius:16px;padding:18px;margin-bottom:14px;box-shadow:5px 5px 0 var(--ink);position:relative;transition:background .25s,border-color .25s}
+.card.card-done{background:#FFF1F4;border-color:var(--accent-deep);box-shadow:5px 5px 0 var(--accent-deep)}
+.check-badge{position:absolute;top:-12px;right:-10px;width:34px;height:34px;border-radius:50%;background:var(--accent);border:3px solid var(--ink);display:flex;align-items:center;justify-content:center}
+.check-badge svg{width:16px;height:16px}
+.card .qn{font-size:11px;color:var(--mu);font-family:'Archivo Black',sans-serif;margin-bottom:4px}
+.card h3{font-size:16.5px;margin:0 0 4px;line-height:1.3;font-family:'Space Grotesk',sans-serif;font-weight:700;text-transform:none;letter-spacing:0}
+.card .sub{font-size:12.5px;color:var(--mu);margin:0 0 12px;line-height:1.4}
+.field{width:100%;padding:12px 13px;border:2.5px solid var(--ink);border-radius:10px;font-family:inherit;font-size:15.5px;background:var(--paper);color:var(--ink)}
+.field:focus{outline:none;border-color:var(--accent);background:#fff}
+.field[disabled]{background:#f1ece0;color:#8a8270;opacity:1;-webkit-text-fill-color:#8a8270}
+.chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:2px}
+.chip{border:2.5px solid var(--ink);background:var(--white);color:var(--ink);border-radius:999px;padding:8px 13px;font-size:13px;font-weight:600;transition:transform .12s, background .15s, color .15s, border-color .15s}
+.chip:active{transform:scale(.94)}
+.chip.sel{background:var(--accent);border-color:var(--accent-deep);color:#fff}
+.chip[disabled]{pointer-events:none}
+
+/* final submit */
+.submitwrap{margin:22px 0 8px;text-align:center}
+.submitBig{font-family:'Archivo Black',sans-serif;font-size:16px;background:var(--ink);color:var(--yellow);padding:16px 30px;border-radius:999px;box-shadow:5px 5px 0 var(--ink);transition:transform .12s}
+.submitBig:active{transform:scale(.96) translate(2px,2px);box-shadow:3px 3px 0 var(--ink)}
+.submitwrap .note{font-size:12px;color:var(--ink);opacity:.65;margin-top:10px}
+
+/* day-complete banner */
+.day-done{background:var(--ink);color:var(--yellow);border-radius:16px;padding:18px;text-align:center;font-family:'Archivo Black',sans-serif;font-size:14px;margin-top:4px}
+
+/* ===== intro ===== */
+#intro{max-width:620px;margin:0 auto;padding:40px 22px 60px;text-align:left}
+#intro .k{font-family:'Archivo Black',sans-serif;color:var(--accent);font-size:13px;letter-spacing:.06em;margin-bottom:6px}
+#intro h1{font-size:clamp(36px,11vw,56px);line-height:.95;margin:0 0 16px}
+#intro h1 span{color:var(--accent)}
+#intro p{font-size:16px;line-height:1.55;margin:0 0 14px;max-width:48ch}
+#intro ul{margin:0 0 16px;padding-left:20px;font-size:14.5px;line-height:1.7}
+#intro .face{display:flex;justify-content:center;margin:24px 0}
+#startBtn{font-family:'Archivo Black',sans-serif;font-size:16px;background:var(--ink);color:var(--yellow);padding:16px 30px;border-radius:999px;box-shadow:5px 5px 0 var(--ink);transition:transform .12s}
+#startBtn:active{transform:scale(.96) translate(2px,2px);box-shadow:3px 3px 0 var(--ink)}
+#nameNote{font-size:12px;color:var(--mu);margin-top:14px}
+
+/* ===== results / the wall tab ===== */
+.wall-day{margin-bottom:28px}
+.wall-day h2{font-size:22px;margin:0 0 4px}
+.wall-q{margin-bottom:18px}
+.wall-q h4{font-size:14px;margin:0 0 8px;font-family:'Space Grotesk',sans-serif;font-weight:700;text-transform:none}
+.wall-list{display:flex;flex-direction:column;gap:8px}
+.bubble{background:var(--white);border:2.5px solid var(--ink);border-radius:12px;padding:10px 13px;font-size:13.5px;line-height:1.4;animation:pop .35s cubic-bezier(.2,1.6,.4,1) both}
+.bubble.chip-answer{font-family:'Archivo Black',sans-serif;font-size:12px;display:inline-flex;align-self:flex-start;background:var(--accent);color:#fff;border-color:var(--accent-deep)}
+@keyframes pop{0%{opacity:0;transform:translateY(6px) scale(.97)}100%{opacity:1;transform:translateY(0) scale(1)}}
+.empty{font-size:13px;color:var(--mu);font-style:italic}
+
+footer{max-width:720px;margin:0 auto;padding:10px 18px 40px;font-size:11.5px;color:var(--ink);opacity:.6;text-align:center}
+</style>
+</head>
+<body>
+
+<section id="intro">
+  <div class="k">A LIVE CULTURAL PROBE</div>
+  <h1>SAY <span>SO</span></h1>
+  <p><b>Everyday Sayings</b>, answered together, in the room, in real time.</p>
+  <p>Four short rounds of questions about the rules nobody explains. Answer anonymously — your name is never collected, and nothing is ever matched back to you.</p>
+  <ul>
+    <li>Fill in as much or as little of each day as you like, then hit submit at the bottom.</li>
+    <li>Submit all four days to unlock <b>The Wall</b> — where every answer in the room shows up together.</li>
+  </ul>
+  <div class="face">
+    <svg width="90" height="90" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="#141414"/><circle cx="36" cy="46" r="7" fill="#F6C90E"/><circle cx="64" cy="46" r="7" fill="#F6C90E"/><path d="M32 66 Q50 80 68 66" stroke="#FF4D6D" stroke-width="6" fill="none" stroke-linecap="round"/></svg>
+  </div>
+  <div style="text-align:center"><button id="startBtn" type="button">START — TAP IN ▸</button></div>
+  <div id="nameNote" style="text-align:center">Connecting…</div>
+</section>
+
+<div id="app" hidden>
+  <header id="siteHeader">
+    <div class="brand-row">
+      <svg class="brand-mark" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="#F6C90E"/><circle cx="36" cy="46" r="7" fill="#141414"/><circle cx="64" cy="46" r="7" fill="#141414"/><path d="M32 64 Q50 78 68 64" stroke="#FF4D6D" stroke-width="6" fill="none" stroke-linecap="round"/></svg>
+      <h1>SAY <span>SO</span></h1>
+    </div>
+    <p class="tagline">Everyday Sayings — a live cultural probe on the rules nobody explains. Answered together, in the room.</p>
+    <div class="header-meta">
+      <div class="m" id="totalCount">— ANSWERS SO FAR</div>
+      <div class="m" id="myProgress">0 / 4 DAYS SUBMITTED</div>
+      <button type="button" id="resetBtn" style="font-family:'Archivo Black',sans-serif;font-size:10.5px;letter-spacing:.03em;background:transparent;color:#ff9090;border:1.5px solid #ff9090;border-radius:999px;padding:4px 10px;cursor:pointer">RESET MY ANSWERS</button>
+    </div>
+    <div id="diag" style="position:relative;z-index:1;margin-top:10px;font-family:'Liberation Mono','Courier New',monospace;font-size:10.5px;color:#ffd966;opacity:.85;line-height:1.6;border-top:1px solid #333;padding-top:8px">diagnostics loading…</div>
+  </header>
+  <nav id="tabbar"></nav>
+  <main id="main"></main>
+  <footer>A live, in-room version of a remote cultural probe. Responses are shared with everyone viewing this page and are never attributed to anyone.</footer>
+</div>
+
+<script>
+(function(){
+  var $=function(id){return document.getElementById(id)};
+  var SKIP = '__skipped__';
+
+  var DAYS = [
+    { key:'d1', label:'DAY 1', title:'Finish the Sentence', blurb:'Half-sentences people grow up hearing. Finish them your way.',
+      prompts:[
+        {id:'d1_q1', type:'text', q:'“A good girl never ___”', ph:'A good girl never…'},
+        {id:'d1_q2', type:'text', q:'“A girl who laughs like that ___”', ph:'…'},
+        {id:'d1_q3', type:'text', q:'“A girl who talks back ___”', ph:'…'},
+        {id:'d1_q4', type:'text', q:'“A girl with a mark or tattoo like that ___”', ph:'…'},
+        {id:'d1_q5', type:'text', q:'“A girl who dresses like that ___”', ph:'…'},
+        {id:'d1_q6', type:'text', q:'“At least she\u2019s ___”', ph:'…'},
+        {id:'d1_q7', type:'text', q:'Which of these do you hear most often?', sub:'Type the first few words.', ph:'e.g. a good girl never…'},
+        {id:'d1_q8', type:'chips', q:'Who usually says lines like these?', sub:'Pick any that fit.', multi:true,
+          options:['A parent','A grandparent','Another relative','A neighbour','A teacher','A friend']},
+        {id:'d1_q9', type:'text', q:'If these sentences had a sound, what would it be?', ph:'e.g. a slammed door, a sigh…'},
+        {id:'d1_q10', type:'text', q:'Anything else you want to add?', ph:'(optional)', optional:true}
+      ]},
+    { key:'d2', label:'DAY 2', title:"Who's in Your Head", blurb:'The person or crowd you picture judging you before you do something.',
+      prompts:[
+        {id:'d2_q1', type:'text', q:'Think of the person, or the crowd, whose opinion you imagine when you decide something, like what to wear, say or do.', sub:'A relative, a neighbour, “society,” someone you\u2019ve never met — describe them in a sentence or two.', ph:'e.g. my aunt, a stranger, my own voice…'},
+        {id:'d2_q2', type:'chips', q:'Are they real, imagined, or a bit of both?', multi:false,
+          options:['Real','Imagined','A bit of both']},
+        {id:'d2_q3', type:'text', q:'Do they have a face, a voice, or a place?', sub:'Describe what you imagine.', ph:'…'},
+        {id:'d2_q4', type:'chips', q:'When do they show up most?', sub:'Tick any.', multi:true,
+          options:['When I dress','When I make plans','At weddings and gatherings','Online']}
+      ]},
+    { key:'d3', label:'DAY 3', title:'The Route of a Rule', blurb:'One rule, traced back as far as you can take it.',
+      prompts:[
+        {id:'d3_q1', type:'text', q:'Choose any one rule you grew up with about how a girl or woman should look, sound or behave.', sub:'Write it the way it\u2019s usually said.', ph:'e.g. don\u2019t laugh too loud…'},
+        {id:'d3_q2', type:'chips', q:'Is it mostly about her body, her voice, or both?', multi:false,
+          options:['Body','Voice','Both','Not sure']},
+        {id:'d3_q3', type:'text', q:'Where do you think it came from?', sub:'Trace the path using roles, not names — “my grandmother \u2192 my mother \u2192 me.” If you don\u2019t know, write where the path stops.', ph:'…'},
+        {id:'d3_q4', type:'text', q:'Was a reason ever given?', sub:'“No reason was given” is a complete answer.', ph:'…'},
+        {id:'d3_q5', type:'text', q:'Who does this rule help, and who does it cost?', sub:'“Nobody” or “I don\u2019t know” is fine.', ph:'…'},
+        {id:'d3_q6', type:'text', q:'If this rule were an object, what would it be?', ph:'e.g. a locked door, a ball, a radio…'}
+      ]},
+    { key:'d4', label:'DAY 4', title:'A Rule That Bent', blurb:'A rule that loosened over time — and what actually moved it.',
+      prompts:[
+        {id:'d4_q1', type:'text', q:'Think of a rule in your family, or one you know about, that loosened over time.', sub:'What was the rule, and for whom?', ph:'…'},
+        {id:'d4_q2', type:'chips', q:'What do you think changed it?', sub:'Tick any.', multi:true,
+          options:['Time passing','Someone argued','Someone stopped caring','A wedding or other event','Someone from outside the family','It just changed, no reason given']},
+        {id:'d4_q3', type:'text', q:'What did girls or women do in the meantime, while the rule was still there?', ph:'…'},
+        {id:'d4_q4', type:'chips', q:'Some people call rules like these \u201Cpatriarchy.\u201D Does that word fit the way you see it?', multi:false,
+          options:['It fits','It partly fits','It doesn\u2019t fit','I\u2019ve never heard it used']},
+        {id:'d4_q5', type:'text', q:'What word would you use, at home or with friends?', ph:'…'},
+        {id:'d4_q6', type:'text', q:'Anything you\u2019d like to add or take back?', ph:'(optional)', optional:true}
+      ]}
+  ];
+  var ALL_PROMPTS = []; DAYS.forEach(function(d){ d.prompts.forEach(function(p){ ALL_PROMPTS.push(p); }); });
+  var TOTAL = ALL_PROMPTS.length;
+
+  var activeTab = 0;
+  var db=null, userCap=null;
+  var answered = JSON.parse(localStorage.getItem('say_so_answered')||'{}');
+  function persist(){ try{ localStorage.setItem('say_so_answered', JSON.stringify(answered)); }catch(e){} }
+  function escapeHtml(s){ var d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
+
+  function dayIsSubmitted(day){ return day.prompts.every(function(p){ return answered[p.id]!==undefined; }); }
+  function daysSubmittedCount(){ return DAYS.filter(dayIsSubmitted).length; }
+  function allComplete(){ return daysSubmittedCount() === DAYS.length; }
+
+  function renderTabs(){
+    var bar = $('tabbar'); bar.innerHTML='';
+    DAYS.forEach(function(d,i){
+      var b=document.createElement('button'); b.type='button'; b.className='tab'+(i===activeTab?' active':'');
+      b.textContent=d.label+(dayIsSubmitted(d)?' \u2713':'');
+      b.addEventListener('click', function(){ activeTab=i; renderTabs(); renderMain(); });
+      bar.appendChild(b);
+    });
+    var complete = allComplete();
+    var w = document.createElement('button'); w.type='button';
+    w.className='tab'+(activeTab===4?' active':'')+(complete?'':' locked');
+    w.innerHTML = (complete?'':'<svg class="lockicon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>') + 'THE WALL';
+    w.addEventListener('click', function(){ if(!complete) return; activeTab=4; renderTabs(); renderMain(); });
+    bar.appendChild(w);
+    $('myProgress').textContent = daysSubmittedCount()+' / '+DAYS.length+' DAYS SUBMITTED';
+  }
+
+  function renderMain(){
+    var m=$('main'); m.innerHTML='';
+    if(activeTab===4){ renderWallTab(m); return; }
+    var day = DAYS[activeTab];
+    var submittedDay = dayIsSubmitted(day);
+    var head=document.createElement('div'); head.className='day-head';
+    head.innerHTML = '<div class="label">'+day.label+'</div><h2>'+escapeHtml(day.title)+'</h2><p>'+escapeHtml(day.blurb)+'</p>'+
+      (submittedDay? '' : '<p class="note">Fill in what you want to answer, leave the rest blank, then submit at the bottom.</p>');
+    m.appendChild(head);
+
+    day.prompts.forEach(function(p){ m.appendChild(renderPrompt(p, day, submittedDay)); });
+
+    if(submittedDay){
+      var done=document.createElement('div'); done.className='day-done';
+      done.textContent = allComplete() ? 'ALL DONE \u2014 THE WALL IS UNLOCKED \u2192' : 'DAY '+(activeTab+1)+' SUBMITTED';
+      m.appendChild(done);
+    } else {
+      var sw=document.createElement('div'); sw.className='submitwrap';
+      var sb=document.createElement('button'); sb.type='button'; sb.className='submitBig';
+      sb.textContent='SUBMIT DAY '+(activeTab+1)+' \u25B8';
+      sb.addEventListener('click', function(){ submitDay(day); });
+      sw.appendChild(sb);
+      var note=document.createElement('div'); note.className='note'; note.textContent='Blank questions are submitted as skipped — that\u2019s fine.';
+      sw.appendChild(note);
+      m.appendChild(sw);
+    }
+  }
+
+  function renderPrompt(p, day, submittedDay){
+    var card=document.createElement('div'); card.className='card'; card.setAttribute('data-pid', p.id);
+    var val = answered[p.id];
+    var skipped = val===SKIP;
+    if(submittedDay && !skipped) card.classList.add('card-done');
+    card.innerHTML = '<div class="qn">QUESTION</div><h3>'+escapeHtml(p.q)+'</h3>'+(p.sub?'<p class="sub">'+escapeHtml(p.sub)+'</p>':'');
+
+    if(p.type==='text'){
+      var inp=document.createElement('input'); inp.className='field'; inp.type='text'; inp.maxLength=160;
+      inp.placeholder=p.ph||''; inp.autocomplete='off';
+      if(val!==undefined && !skipped) inp.value=val;
+      if(submittedDay) inp.disabled = true;
+      card.appendChild(inp);
+    } else if(p.type==='chips'){
+      var wrap=document.createElement('div'); wrap.className='chips';
+      var selected = (val!==undefined && !skipped) ? (Array.isArray(val)?val.slice():[val]) : [];
+      p.options.forEach(function(opt){
+        var c=document.createElement('button'); c.type='button'; c.className='chip'+(selected.indexOf(opt)>-1?' sel':'');
+        c.textContent=opt; c.setAttribute('data-opt', opt);
+        if(submittedDay) c.disabled = true;
+        c.addEventListener('click', function(){
+          if(submittedDay) return;
+          if(p.multi){
+            var idx2=selected.indexOf(opt);
+            if(idx2>-1){selected.splice(idx2,1); c.classList.remove('sel');} else {selected.push(opt); c.classList.add('sel');}
+          } else {
+            selected=[opt];
+            Array.prototype.forEach.call(wrap.children, function(ch){ch.classList.remove('sel');});
+            c.classList.add('sel');
+          }
+        });
+        wrap.appendChild(c);
+      });
+      card.appendChild(wrap);
+    }
+
+    if(submittedDay && !skipped){
+      var badge=document.createElement('div'); badge.className='check-badge';
+      badge.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+      card.appendChild(badge);
+    }
+    return card;
+  }
+
+  function submitDay(day){
+    day.prompts.forEach(function(p){
+      try{
+        var cardEl = document.querySelector('.card[data-pid="'+p.id+'"]');
+        if(!cardEl) return;
+        if(p.type==='text'){
+          var inp = cardEl.querySelector('.field');
+          var v = inp ? inp.value.trim() : '';
+          if(v){ submitAnswer(p.id, v, false); answered[p.id]=v; }
+          else { answered[p.id]=SKIP; }
+        } else if(p.type==='chips'){
+          var sel=[]; cardEl.querySelectorAll('.chip.sel').forEach(function(ch){ sel.push(ch.getAttribute('data-opt')); });
+          if(sel.length){ submitAnswer(p.id, sel.join(', '), true); answered[p.id]=p.multi?sel:sel[0]; }
+          else { answered[p.id]=SKIP; }
+        }
+      }catch(e){
+        try{ answered[p.id]=answered[p.id]!==undefined?answered[p.id]:SKIP; }catch(e2){}
+      }
+    });
+    try{ persist(); }catch(e){}
+    var idx = DAYS.indexOf(day);
+    try{
+      if(idx+1 < DAYS.length){ activeTab = idx+1; }
+      else if(allComplete()){ activeTab = 4; }
+    }catch(e){ if(idx+1 < DAYS.length) activeTab = idx+1; }
+    try{ renderTabs(); }catch(e){}
+    try{ renderMain(); }catch(e){
+      try{ $('main').innerHTML = '<div class="day-head"><h2>Saved</h2><p>Your answers for this day were saved. If the page looks stuck, switch tabs above and back.</p></div>'; }catch(e2){}
+    }
+    window.scrollTo({top:0, behavior: (window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth')});
+  }
+
+  function submitAnswer(promptId, text, isChip){
+    if(!db){ diagLog('write skipped: db is null'); return; }
+    try{
+      db.collection('answers').add({promptId:promptId, text:text, createdAt:Date.now(), chip:!!isChip})
+        .then(function(){ diagLog('write OK: '+promptId); })
+        .catch(function(err){ diagLog('write FAILED: '+promptId+' — '+(err && (err.code||err.message||err))); });
+    }catch(e){
+      diagLog('write THREW: '+promptId+' — '+(e && e.message));
+    }
+  }
+
+  function diagLog(msg){
+    var el = document.getElementById('diag'); if(!el) return;
+    var t = new Date().toLocaleTimeString();
+    var prev = (el.innerHTML==='diagnostics loading…') ? '' : el.innerHTML;
+    el.innerHTML = '['+t+'] '+msg + (prev ? '<br>'+prev : '');
+    var lines = el.innerHTML.split('<br>');
+    if(lines.length>6) el.innerHTML = lines.slice(0,6).join('<br>');
+  }
+
+  // ---------- THE WALL ----------
+  var wallUnsubs = {};
+  var wallData = {};
+  function renderWallTab(m){
+    try{
+      var intro=document.createElement('div'); intro.className='day-head';
+      intro.innerHTML='<div class="label">UNLOCKED</div><h2>THE WALL</h2><p>Every answer from everyone in the room, live.</p>';
+      m.appendChild(intro);
+      DAYS.forEach(function(day){
+        var sec=document.createElement('div'); sec.className='wall-day';
+        sec.innerHTML='<h2>'+escapeHtml(day.title)+'</h2>';
+        day.prompts.forEach(function(p){
+          var qwrap=document.createElement('div'); qwrap.className='wall-q';
+          qwrap.innerHTML='<h4>'+escapeHtml(p.q)+'</h4>';
+          var list=document.createElement('div'); list.className='wall-list'; list.id='wlist_'+p.id;
+          list.innerHTML='<div class="empty">No answers yet.</div>';
+          qwrap.appendChild(list);
+          sec.appendChild(qwrap);
+        });
+        m.appendChild(sec);
+      });
+      ALL_PROMPTS.forEach(function(p){ try{ paintWall(p.id); }catch(e){} });
+    }catch(e){
+      m.innerHTML = '<div class="day-head"><h2>THE WALL</h2><p>Something went wrong showing the wall. Try reopening the page.</p></div>';
+    }
+  }
+  function paintWall(pid){
+    var el=$('wlist_'+pid); if(!el) return;
+    var docs = wallData[pid] || [];
+    if(!docs.length){ el.innerHTML='<div class="empty">No answers yet.</div>'; return; }
+    el.innerHTML='';
+    docs.forEach(function(v){
+      var b=document.createElement('div'); b.className='bubble'+(v.chip?' chip-answer':'');
+      b.textContent=v.text||''; el.appendChild(b);
+    });
+  }
+  function startWallSubscriptions(){
+    ALL_PROMPTS.forEach(function(p){
+      if(wallUnsubs[p.id]) return;
+      try{
+        wallUnsubs[p.id] = db.collection('answers').where('promptId','==',p.id).orderBy('createdAt','asc').onSnapshot(function(snap){
+          wallData[p.id] = (snap.docs||[]).slice(-80).map(function(d){ return d.data()||{}; });
+          paintWall(p.id);
+        }, function(){});
+      }catch(e){}
+    });
+  }
+
+  function wireOverallCount(){
+    if(!db) return;
+    try{
+      db.collection('answers').onSnapshot(function(snap){
+        var total=(snap.docs||[]).length;
+        $('totalCount').textContent = total+' ANSWERS SO FAR';
+      }, function(){});
+    }catch(e){}
+  }
+
+  function connect(){
+    var C=window.claude;
+    if(!C || !C.use){ $('nameNote').textContent='Live wall unavailable in this preview — open the published page to connect.'; return; }
+    diagLog('window.claude present, requesting db…');
+    C.use('db').then(function(d){
+      if(!d){ $('nameNote').textContent='Sign in to join.'; diagLog('db capability returned null (not signed in, or not granted)'); return; }
+      db=d; $('nameNote').textContent='Connected. Tap in to begin \u2192';
+      diagLog('db connected OK');
+      C.use('user').then(function(u){
+        userCap=u;
+        try{ if(u && u.isOwner){ diagLog('isOwner: '+u.isOwner()); } }catch(e){}
+        try{ if(u && u.can){ u.can('data.write').then(function(v){ diagLog('can write shared data: '+v); }); } }catch(e){}
+      });
+      wireOverallCount();
+      startWallSubscriptions();
+      if(activeTab===4) renderMain();
+    }).catch(function(err){ $('nameNote').textContent='Live wall unavailable right now.'; diagLog('db connect FAILED: '+(err&&(err.code||err.message||err))); });
+  }
+
+  $('startBtn').addEventListener('click', function(){
+    try{
+      $('intro').hidden=true; $('app').hidden=false;
+      renderTabs(); renderMain();
+    }catch(e){
+      $('intro').hidden=true; $('app').hidden=false;
+    }
+  });
+
+  renderTabs();
+  connect();
+
+  var resetBtn = document.getElementById('resetBtn');
+  if(resetBtn) resetBtn.addEventListener('click', function(){
+    if(!window.confirm('Clear your saved answers on this device and start over? This does not affect anyone else\'s answers on The Wall.')) return;
+    answered = {};
+    try{ localStorage.removeItem('say_so_answered'); }catch(e){}
+    activeTab = 0;
+    renderTabs();
+    renderMain();
+    window.scrollTo({top:0, behavior:'auto'});
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Say So — A Live Cultural Probe</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --yellow:#F6C90E; --yellow-deep:#E8B700; --ink:#141414; --paper:#FFFDF6; --white:#ffffff;
+  --accent:#FF4D6D; --accent-deep:#E03354; --mu:#6b6456; --lock:#9c9586;
+  color-scheme: light; box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+html{height:100%;scroll-padding-top:env(safe-area-inset-top,0px)}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;min-height:100%;background:var(--yellow);color:var(--ink);font-family:'Space Grotesk',sans-serif;overflow-x:hidden}
+h1,h2,h3,.disp{font-family:'Archivo Black',sans-serif;text-transform:uppercase;letter-spacing:-0.01em}
+[hidden]{display:none!important}
+button{font-family:inherit;cursor:pointer;border:none}
+::selection{background:var(--accent);color:#fff}
+
+/* ===== header ===== */
+#siteHeader{background:var(--ink);padding:calc(26px + env(safe-area-inset-top,0px)) 20px 22px;position:relative;overflow:hidden}
+#siteHeader::before{content:"";position:absolute;top:-40px;right:-40px;width:160px;height:160px;border-radius:50%;background:var(--accent);opacity:.18}
+#siteHeader::after{content:"";position:absolute;bottom:-60px;left:-30px;width:140px;height:140px;border-radius:50%;background:var(--yellow);opacity:.12}
+.brand-row{display:flex;align-items:center;gap:10px;position:relative;z-index:1}
+.brand-mark{width:38px;height:38px;flex:0 0 auto}
+#siteHeader h1{color:var(--yellow);font-size:clamp(28px,8vw,40px);line-height:.92;margin:0;position:relative;z-index:1}
+#siteHeader h1 span{color:var(--accent)}
+.tagline{color:var(--white);opacity:.82;font-size:13.5px;margin:10px 0 0;max-width:46ch;position:relative;z-index:1;line-height:1.5}
+.header-meta{display:flex;gap:16px;margin-top:14px;position:relative;z-index:1;flex-wrap:wrap}
+.header-meta .m{font-size:11px;color:var(--yellow);font-family:'Archivo Black',sans-serif;letter-spacing:.03em}
+
+/* sticky nav */
+#tabbar{position:sticky;top:0;z-index:30;background:var(--ink);padding:10px 14px;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;border-top:2px solid #2a2a2a}
+#tabbar::-webkit-scrollbar{display:none}
+.tab{flex:0 0 auto;background:transparent;color:var(--yellow);border:2px solid var(--yellow);border-radius:999px;padding:8px 14px;font-family:'Archivo Black',sans-serif;font-size:11.5px;letter-spacing:.02em;transition:transform .15s, background .2s;display:flex;align-items:center;gap:6px}
+.tab.active{background:var(--accent);color:#fff;border-color:var(--accent-deep)}
+.tab.locked{color:var(--lock);border-color:var(--lock);opacity:.7}
+.tab:active{transform:scale(.95)}
+.tab .lockicon{width:11px;height:11px}
+
+main{max-width:720px;margin:0 auto;padding:22px 18px 70px}
+
+/* day intro */
+.day-head{margin-bottom:16px}
+.day-head .label{display:inline-flex;align-items:center;gap:8px;background:var(--ink);color:var(--yellow);font-family:'Archivo Black',sans-serif;font-size:12px;padding:4px 10px;border-radius:4px;margin-bottom:10px;transform:rotate(-2deg)}
+.day-head h2{font-size:clamp(26px,7.5vw,38px);line-height:1.02;margin:0 0 8px}
+.day-head p{margin:0 0 6px;font-size:14.5px;line-height:1.5;color:var(--ink);opacity:.8;max-width:52ch}
+.day-head .note{font-size:12.5px;color:var(--ink);opacity:.7;font-style:italic;margin-top:6px}
+
+/* prompt card */
+.card{background:var(--white);border:3px solid var(--ink);border-radius:16px;padding:18px;margin-bottom:14px;box-shadow:5px 5px 0 var(--ink);position:relative;transition:background .25s,border-color .25s}
+.card.card-done{background:#FFF1F4;border-color:var(--accent-deep);box-shadow:5px 5px 0 var(--accent-deep)}
+.check-badge{position:absolute;top:-12px;right:-10px;width:34px;height:34px;border-radius:50%;background:var(--accent);border:3px solid var(--ink);display:flex;align-items:center;justify-content:center}
+.check-badge svg{width:16px;height:16px}
+.card .qn{font-size:11px;color:var(--mu);font-family:'Archivo Black',sans-serif;margin-bottom:4px}
+.card h3{font-size:16.5px;margin:0 0 4px;line-height:1.3;font-family:'Space Grotesk',sans-serif;font-weight:700;text-transform:none;letter-spacing:0}
+.card .sub{font-size:12.5px;color:var(--mu);margin:0 0 12px;line-height:1.4}
+.field{width:100%;padding:12px 13px;border:2.5px solid var(--ink);border-radius:10px;font-family:inherit;font-size:15.5px;background:var(--paper);color:var(--ink)}
+.field:focus{outline:none;border-color:var(--accent);background:#fff}
+.field[disabled]{background:#f1ece0;color:#8a8270;opacity:1;-webkit-text-fill-color:#8a8270}
+.chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:2px}
+.chip{border:2.5px solid var(--ink);background:var(--white);color:var(--ink);border-radius:999px;padding:8px 13px;font-size:13px;font-weight:600;transition:transform .12s, background .15s, color .15s, border-color .15s}
+.chip:active{transform:scale(.94)}
+.chip.sel{background:var(--accent);border-color:var(--accent-deep);color:#fff}
+.chip[disabled]{pointer-events:none}
+
+/* final submit */
+.submitwrap{margin:22px 0 8px;text-align:center}
+.submitBig{font-family:'Archivo Black',sans-serif;font-size:16px;background:var(--ink);color:var(--yellow);padding:16px 30px;border-radius:999px;box-shadow:5px 5px 0 var(--ink);transition:transform .12s}
+.submitBig:active{transform:scale(.96) translate(2px,2px);box-shadow:3px 3px 0 var(--ink)}
+.submitwrap .note{font-size:12px;color:var(--ink);opacity:.65;margin-top:10px}
+
+/* day-complete banner */
+.day-done{background:var(--ink);color:var(--yellow);border-radius:16px;padding:18px;text-align:center;font-family:'Archivo Black',sans-serif;font-size:14px;margin-top:4px}
+
+/* ===== intro ===== */
+#intro{max-width:620px;margin:0 auto;padding:40px 22px 60px;text-align:left}
+#intro .k{font-family:'Archivo Black',sans-serif;color:var(--accent);font-size:13px;letter-spacing:.06em;margin-bottom:6px}
+#intro h1{font-size:clamp(36px,11vw,56px);line-height:.95;margin:0 0 16px}
+#intro h1 span{color:var(--accent)}
+#intro p{font-size:16px;line-height:1.55;margin:0 0 14px;max-width:48ch}
+#intro ul{margin:0 0 16px;padding-left:20px;font-size:14.5px;line-height:1.7}
+#intro .face{display:flex;justify-content:center;margin:24px 0}
+#startBtn{font-family:'Archivo Black',sans-serif;font-size:16px;background:var(--ink);color:var(--yellow);padding:16px 30px;border-radius:999px;box-shadow:5px 5px 0 var(--ink);transition:transform .12s}
+#startBtn:active{transform:scale(.96) translate(2px,2px);box-shadow:3px 3px 0 var(--ink)}
+#nameNote{font-size:12px;color:var(--mu);margin-top:14px}
+
+/* ===== results / the wall tab ===== */
+.wall-day{margin-bottom:28px}
+.wall-day h2{font-size:22px;margin:0 0 4px}
+.wall-q{margin-bottom:18px}
+.wall-q h4{font-size:14px;margin:0 0 8px;font-family:'Space Grotesk',sans-serif;font-weight:700;text-transform:none}
+.wall-list{display:flex;flex-direction:column;gap:8px}
+.bubble{background:var(--white);border:2.5px solid var(--ink);border-radius:12px;padding:10px 13px;font-size:13.5px;line-height:1.4;animation:pop .35s cubic-bezier(.2,1.6,.4,1) both}
+.bubble.chip-answer{font-family:'Archivo Black',sans-serif;font-size:12px;display:inline-flex;align-self:flex-start;background:var(--accent);color:#fff;border-color:var(--accent-deep)}
+@keyframes pop{0%{opacity:0;transform:translateY(6px) scale(.97)}100%{opacity:1;transform:translateY(0) scale(1)}}
+.empty{font-size:13px;color:var(--mu);font-style:italic}
+
+footer{max-width:720px;margin:0 auto;padding:10px 18px 40px;font-size:11.5px;color:var(--ink);opacity:.6;text-align:center}
+
+/* ===== return code, login, editing ===== */
+#loginArea{margin-top:20px;text-align:center}
+.linkish{background:transparent;color:var(--ink);font-weight:700;font-size:13.5px;text-decoration:underline;text-underline-offset:3px;padding:6px}
+#loginForm{display:flex;flex-direction:column;gap:10px;align-items:center;margin-top:10px}
+#loginForm .field{max-width:320px;text-align:center;text-transform:uppercase;font-family:'Archivo Black',sans-serif;letter-spacing:.04em}
+.msg{font-size:12.5px;font-weight:700;min-height:1em}
+.submitBig.small{font-size:14px;padding:12px 24px}
+.submitBig[disabled],#startBtn[disabled]{opacity:.6;cursor:wait}
+.editBtn{font-family:'Archivo Black',sans-serif;font-size:13px;background:var(--white);color:var(--ink);border:3px solid var(--ink);padding:12px 22px;border-radius:999px;box-shadow:4px 4px 0 var(--ink);transition:transform .12s}
+.editBtn:active{transform:scale(.96) translate(2px,2px);box-shadow:2px 2px 0 var(--ink)}
+.edit-row{text-align:center;margin-top:16px}
+.code-card{background:var(--ink);color:var(--white);border-radius:16px;padding:16px 18px;margin-bottom:18px;font-size:13.5px;line-height:1.5}
+.code-card .code{display:block;font-family:'Archivo Black',sans-serif;color:var(--yellow);font-size:22px;letter-spacing:.04em;margin:4px 0 6px;word-break:break-word}
+.header-btn{font-family:'Archivo Black',sans-serif;font-size:10.5px;letter-spacing:.03em;background:transparent;color:#ff9090;border:1.5px solid #ff9090;border-radius:999px;padding:4px 10px;cursor:pointer}
+.save-error{font-size:13px;font-weight:700;margin-top:10px}
+</style>
+</head>
+<body>
+
+<section id="intro">
+  <div class="k">A LIVE CULTURAL PROBE</div>
+  <h1>SAY <span>SO</span></h1>
+  <p><b>Everyday Sayings</b>, answered together, in the room, in real time.</p>
+  <p>Four short rounds of questions about the rules nobody explains. Answer anonymously — your name is never collected, and nothing is ever matched back to you.</p>
+  <ul>
+    <li>Fill in as much or as little of each day as you like, then hit submit at the bottom.</li>
+    <li>Submit all four days to unlock <b>The Wall</b> — where every answer in the room shows up together.</li>
+    <li>You'll get a random code (like <b>MANGO-RIVER-4821</b>). It's only a way back into your own answers if you want to change them — it isn't linked to you.</li>
+  </ul>
+  <div class="face">
+    <svg width="90" height="90" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="#141414"/><circle cx="36" cy="46" r="7" fill="#F6C90E"/><circle cx="64" cy="46" r="7" fill="#F6C90E"/><path d="M32 66 Q50 80 68 66" stroke="#FF4D6D" stroke-width="6" fill="none" stroke-linecap="round"/></svg>
+  </div>
+  <div style="text-align:center"><button id="startBtn" type="button">START — TAP IN ▸</button></div>
+  <div id="nameNote" style="text-align:center">Connecting…</div>
+  <div id="loginArea">
+    <button type="button" class="linkish" id="showLoginBtn">Already answered? Log back in with your code</button>
+    <form id="loginForm" hidden autocomplete="off">
+      <input id="codeInput" class="field" type="text" maxlength="40" placeholder="e.g. MANGO-RIVER-4821" autocapitalize="characters" autocomplete="off" autocorrect="off" spellcheck="false">
+      <button type="submit" class="submitBig small" id="loginBtn">LOG IN ▸</button>
+      <div class="msg" id="loginMsg"></div>
+    </form>
+  </div>
+</section>
+
+<div id="app" hidden>
+  <header id="siteHeader">
+    <div class="brand-row">
+      <svg class="brand-mark" viewBox="0 0 100 100"><circle cx="50" cy="50" r="46" fill="#F6C90E"/><circle cx="36" cy="46" r="7" fill="#141414"/><circle cx="64" cy="46" r="7" fill="#141414"/><path d="M32 64 Q50 78 68 64" stroke="#FF4D6D" stroke-width="6" fill="none" stroke-linecap="round"/></svg>
+      <h1>SAY <span>SO</span></h1>
+    </div>
+    <p class="tagline">Everyday Sayings — a live cultural probe on the rules nobody explains. Answered together, in the room.</p>
+    <div class="header-meta">
+      <div class="m" id="totalCount">— ANSWERS SO FAR</div>
+      <div class="m" id="myProgress">0 / 4 DAYS SUBMITTED</div>
+      <div class="m" id="myCode"></div>
+      <button type="button" id="logoutBtn" class="header-btn">LOG OUT</button>
+    </div>
+    <div id="diag" hidden style="position:relative;z-index:1;margin-top:10px;font-family:'Liberation Mono','Courier New',monospace;font-size:10.5px;color:#ffd966;opacity:.85;line-height:1.6;border-top:1px solid #333;padding-top:8px">diagnostics loading…</div>
+  </header>
+  <nav id="tabbar"></nav>
+  <main id="main"></main>
+  <footer>A live, in-room version of a remote cultural probe. Responses are shared with everyone viewing this page and are never attributed to anyone.</footer>
+</div>
+
+<script type="module">
+import { DAYS } from './prompts.js';
+
+// Diagnostics readout in the header (connection + save results with real error text) so problems
+// can be screenshotted from a phone. Set to false before the real presentation; ?debug=1 forces it on.
+var SHOW_DIAGNOSTICS = true;
+var POLL_MS = 3000;
+var CODE_KEY = 'say_so_code';
+
+var $=function(id){return document.getElementById(id)};
+var ALL_PROMPTS = []; DAYS.forEach(function(d){ d.prompts.forEach(function(p){ ALL_PROMPTS.push(p); }); });
+
+var activeTab = 0;
+var editingDay = null;          // key of a submitted day currently unlocked for editing
+var showCodeCard = false;       // true right after joining, until the first day is submitted
+var code = loadCode();          // this device's return code — the only "login"
+var me = emptyMe();             // this participant's answers + submitted days, from the server
+var wallData = {}, wallVersion = '';
+var lastPollOk = null;
+
+function emptyMe(){ return { submittedDays: [], answers: {} }; }
+function loadCode(){ try{ return localStorage.getItem(CODE_KEY) || null; }catch(e){ return null; } }
+function saveCode(c){ code=c; try{ localStorage.setItem(CODE_KEY, c); }catch(e){} }
+function clearCode(){ code=null; try{ localStorage.removeItem(CODE_KEY); }catch(e){} }
+function escapeHtml(s){ var d=document.createElement('div'); d.textContent=s; return d.innerHTML; }
+
+function dayIsSubmitted(day){ return me.submittedDays.indexOf(day.key) > -1; }
+function daysSubmittedCount(){ return DAYS.filter(dayIsSubmitted).length; }
+function allComplete(){ return daysSubmittedCount() === DAYS.length; }
+
+// ---------- server calls ----------
+function api(path, opts){
+  opts = opts || {};
+  var headers = { 'accept': 'application/json' };
+  var auth = opts.code || code;
+  if(auth) headers['authorization'] = 'Bearer ' + auth;
+  if(opts.body) headers['content-type'] = 'application/json';
+  return fetch(path, { method: opts.method || 'GET', headers: headers, body: opts.body ? JSON.stringify(opts.body) : undefined })
+    .then(function(res){
+      return res.json().catch(function(){ return {}; }).then(function(data){
+        if(!res.ok){ var err = new Error(data.error || ('HTTP '+res.status)); err.status = res.status; throw err; }
+        return data;
+      });
+    });
+}
+
+// ---------- tabs + days ----------
+function renderTabs(){
+  var bar = $('tabbar'); bar.innerHTML='';
+  DAYS.forEach(function(d,i){
+    var b=document.createElement('button'); b.type='button'; b.className='tab'+(i===activeTab?' active':'');
+    b.textContent=d.label+(dayIsSubmitted(d)?' ✓':'');
+    b.addEventListener('click', function(){ activeTab=i; editingDay=null; renderTabs(); renderMain(); });
+    bar.appendChild(b);
+  });
+  var complete = allComplete();
+  var w = document.createElement('button'); w.type='button';
+  w.className='tab'+(activeTab===4?' active':'')+(complete?'':' locked');
+  w.innerHTML = (complete?'':'<svg class="lockicon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>') + 'THE WALL';
+  w.addEventListener('click', function(){ if(!complete) return; activeTab=4; editingDay=null; renderTabs(); renderMain(); });
+  bar.appendChild(w);
+  $('myProgress').textContent = daysSubmittedCount()+' / '+DAYS.length+' DAYS SUBMITTED';
+  $('myCode').textContent = code ? 'YOUR CODE: '+code : '';
+}
+
+function renderMain(){
+  var m=$('main'); m.innerHTML='';
+  if(activeTab===4){ renderWallTab(m); return; }
+  var day = DAYS[activeTab];
+  var editing = editingDay === day.key;
+  var locked = dayIsSubmitted(day) && !editing;
+
+  if(showCodeCard){
+    var cc=document.createElement('div'); cc.className='code-card';
+    cc.innerHTML = 'YOUR RETURN CODE<span class="code"></span>Screenshot it or jot it down. It’s the only way back into your answers if you want to change them later, from this phone or another one. It isn’t linked to your name, and it stays at the top of the page.';
+    cc.querySelector('.code').textContent = code;
+    m.appendChild(cc);
+  }
+
+  var note = locked
+    ? '<p class="note">You’ve already submitted '+day.label+' as '+escapeHtml(code||'')+'. Your answers are below — tap “Edit” to change them.</p>'
+    : editing
+      ? '<p class="note">Editing your '+day.label+' answers. Clear a box to take that answer back, then save at the bottom.</p>'
+      : '<p class="note">Fill in what you want to answer, leave the rest blank, then submit at the bottom.</p>';
+  var head=document.createElement('div'); head.className='day-head';
+  head.innerHTML = '<div class="label">'+day.label+'</div><h2>'+escapeHtml(day.title)+'</h2><p>'+escapeHtml(day.blurb)+'</p>'+note;
+  m.appendChild(head);
+
+  day.prompts.forEach(function(p){ m.appendChild(renderPrompt(p, locked)); });
+
+  if(locked){
+    var done=document.createElement('div'); done.className='day-done';
+    done.textContent = allComplete() ? 'ALL DONE — THE WALL IS UNLOCKED →' : 'DAY '+(activeTab+1)+' SUBMITTED';
+    m.appendChild(done);
+    var er=document.createElement('div'); er.className='edit-row';
+    var eb=document.createElement('button'); eb.type='button'; eb.className='editBtn';
+    eb.textContent='EDIT MY DAY '+(activeTab+1)+' ANSWERS';
+    eb.addEventListener('click', function(){ editingDay=day.key; renderMain(); });
+    er.appendChild(eb); m.appendChild(er);
+  } else {
+    var sw=document.createElement('div'); sw.className='submitwrap';
+    var sb=document.createElement('button'); sb.type='button'; sb.className='submitBig';
+    sb.textContent = editing ? 'SAVE CHANGES ▸' : 'SUBMIT DAY '+(activeTab+1)+' ▸';
+    var err=document.createElement('div'); err.className='save-error'; err.hidden=true;
+    sb.addEventListener('click', function(){ submitDay(day, sb, err); });
+    sw.appendChild(sb);
+    sw.appendChild(err);
+    var n=document.createElement('div'); n.className='note'; n.textContent='Blank questions are submitted as skipped — that’s fine.';
+    sw.appendChild(n);
+    if(editing){
+      var cancel=document.createElement('button'); cancel.type='button'; cancel.className='linkish'; cancel.textContent='Cancel — keep my saved answers';
+      cancel.addEventListener('click', function(){ editingDay=null; renderMain(); });
+      sw.appendChild(cancel);
+    }
+    m.appendChild(sw);
+  }
+}
+
+function renderPrompt(p, locked){
+  var card=document.createElement('div'); card.className='card'; card.setAttribute('data-pid', p.id);
+  var val = me.answers[p.id];
+  var hasAnswer = val!==undefined && val!==null;
+  if(locked && hasAnswer) card.classList.add('card-done');
+  card.innerHTML = '<div class="qn">QUESTION</div><h3>'+escapeHtml(p.q)+'</h3>'+(p.sub?'<p class="sub">'+escapeHtml(p.sub)+'</p>':'');
+
+  if(p.type==='text'){
+    var inp=document.createElement('input'); inp.className='field'; inp.type='text'; inp.maxLength=160;
+    inp.placeholder=p.ph||''; inp.autocomplete='off';
+    if(hasAnswer) inp.value=val;
+    if(locked) inp.disabled = true;
+    card.appendChild(inp);
+  } else if(p.type==='chips'){
+    var wrap=document.createElement('div'); wrap.className='chips';
+    var selected = hasAnswer ? (Array.isArray(val)?val.slice():[val]) : [];
+    p.options.forEach(function(opt){
+      var c=document.createElement('button'); c.type='button'; c.className='chip'+(selected.indexOf(opt)>-1?' sel':'');
+      c.textContent=opt; c.setAttribute('data-opt', opt);
+      if(locked) c.disabled = true;
+      c.addEventListener('click', function(){
+        if(locked) return;
+        if(p.multi){
+          var idx2=selected.indexOf(opt);
+          if(idx2>-1){selected.splice(idx2,1); c.classList.remove('sel');} else {selected.push(opt); c.classList.add('sel');}
+        } else if(selected[0]===opt){
+          selected=[]; c.classList.remove('sel');   // tap again to un-pick (lets an edit clear it)
+        } else {
+          selected=[opt];
+          Array.prototype.forEach.call(wrap.children, function(ch){ch.classList.remove('sel');});
+          c.classList.add('sel');
+        }
+      });
+      wrap.appendChild(c);
+    });
+    card.appendChild(wrap);
+  }
+
+  if(locked && hasAnswer){
+    var badge=document.createElement('div'); badge.className='check-badge';
+    badge.innerHTML='<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+    card.appendChild(badge);
+  }
+  return card;
+}
+
+function submitDay(day, btn, errEl){
+  var answers = {};
+  day.prompts.forEach(function(p){
+    var cardEl = document.querySelector('.card[data-pid="'+p.id+'"]');
+    if(!cardEl) return;
+    if(p.type==='text'){
+      var inp = cardEl.querySelector('.field');
+      var v = inp ? inp.value.trim() : '';
+      if(v) answers[p.id] = v;
+    } else if(p.type==='chips'){
+      var sel=[]; cardEl.querySelectorAll('.chip.sel').forEach(function(ch){ sel.push(ch.getAttribute('data-opt')); });
+      if(sel.length) answers[p.id] = sel;
+    }
+  });
+
+  var wasEditing = editingDay === day.key;
+  var label = btn.textContent;
+  btn.disabled = true; btn.textContent = 'SAVING…'; errEl.hidden = true;
+  api('/api/answers', { method:'PUT', body:{ day: day.key, answers: answers } }).then(function(res){
+    me = res.me;
+    editingDay = null;
+    showCodeCard = false;
+    diagLog('save OK: '+day.label+' — '+res.saved+' answered, '+res.skipped+' skipped');
+    // A first submit moves on to the next day; saving an edit stays put.
+    var idx = DAYS.indexOf(day);
+    if(!wasEditing){
+      if(idx+1 < DAYS.length) activeTab = idx+1;
+      else if(allComplete()) activeTab = 4;
+    }
+    renderTabs(); renderMain();
+    window.scrollTo({top:0, behavior: (window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth')});
+    poll();
+  }).catch(function(err){
+    // Nothing is locked on failure — answers stay in the boxes so they can try again.
+    diagLog('save FAILED: '+day.label+' — '+err.message);
+    btn.disabled = false; btn.textContent = label;
+    errEl.textContent = 'Couldn’t save: '+err.message+' Your answers are still here — try again.';
+    errEl.hidden = false;
+  });
+}
+
+function diagLog(msg){
+  var el = document.getElementById('diag'); if(!el) return;
+  var t = new Date().toLocaleTimeString();
+  var prev = (el.innerHTML==='diagnostics loading…') ? '' : el.innerHTML;
+  el.innerHTML = '['+t+'] '+escapeHtml(msg) + (prev ? '<br>'+prev : '');
+  var lines = el.innerHTML.split('<br>');
+  if(lines.length>6) el.innerHTML = lines.slice(0,6).join('<br>');
+}
+
+// ---------- THE WALL ----------
+// One global poll loop (never started from a render function) fills the wallData cache.
+// renderWallTab builds and attaches the sections first, then paints from the cache.
+function renderWallTab(m){
+  try{
+    var intro=document.createElement('div'); intro.className='day-head';
+    intro.innerHTML='<div class="label">UNLOCKED</div><h2>THE WALL</h2><p>Every answer from everyone in the room, live.</p>';
+    m.appendChild(intro);
+    DAYS.forEach(function(day){
+      var sec=document.createElement('div'); sec.className='wall-day';
+      sec.innerHTML='<h2>'+escapeHtml(day.title)+'</h2>';
+      day.prompts.forEach(function(p){
+        var qwrap=document.createElement('div'); qwrap.className='wall-q';
+        qwrap.innerHTML='<h4>'+escapeHtml(p.q)+'</h4>';
+        var list=document.createElement('div'); list.className='wall-list'; list.id='wlist_'+p.id;
+        list.innerHTML='<div class="empty">No answers yet.</div>';
+        qwrap.appendChild(list);
+        sec.appendChild(qwrap);
+      });
+      m.appendChild(sec);
+    });
+    ALL_PROMPTS.forEach(function(p){ try{ paintWall(p.id); }catch(e){} });
+  }catch(e){
+    m.innerHTML = '<div class="day-head"><h2>THE WALL</h2><p>Something went wrong showing the wall. Try reopening the page.</p></div>';
+  }
+}
+// Keyed by answer id: existing bubbles are reused in place, so only genuinely new answers pop in.
+function paintWall(pid){
+  var el=$('wlist_'+pid); if(!el) return;
+  var docs = wallData[pid] || [];
+  if(!docs.length){ el.innerHTML='<div class="empty">No answers yet.</div>'; return; }
+  var empty = el.querySelector('.empty'); if(empty) empty.remove();
+  var existing = {};
+  Array.prototype.forEach.call(el.children, function(b){ existing[b.getAttribute('data-id')] = b; });
+  docs.forEach(function(v, i){
+    var b = existing[v.id];
+    if(b){ delete existing[v.id]; }
+    else { b=document.createElement('div'); b.setAttribute('data-id', v.id); }
+    b.className='bubble'+(v.chip?' chip-answer':'');
+    if(b.textContent !== v.text) b.textContent = v.text||'';
+    if(el.children[i] !== b) el.insertBefore(b, el.children[i] || null);
+  });
+  Object.keys(existing).forEach(function(k){ existing[k].remove(); });
+}
+
+var polling = false;
+function poll(){
+  if(polling) return;
+  polling = true;
+  var full = !!code && allComplete();
+  api('/api/wall' + (full ? '?full=1&v='+encodeURIComponent(wallVersion) : '')).then(function(res){
+    $('totalCount').textContent = res.total+' ANSWERS SO FAR';
+    if(full && !res.unchanged && res.answers){
+      wallVersion = res.version;
+      wallData = res.answers;
+      ALL_PROMPTS.forEach(function(p){ try{ paintWall(p.id); }catch(e){} });
+    }
+    if(lastPollOk !== true) diagLog('live updates OK ('+res.total+' answers)');
+    lastPollOk = true;
+  }).catch(function(err){
+    if(lastPollOk !== false) diagLog('live updates FAILED: '+err.message);
+    lastPollOk = false;
+  }).finally(function(){ polling = false; });
+}
+function startPolling(){
+  poll();
+  setInterval(function(){ if(!document.hidden) poll(); }, POLL_MS);
+  document.addEventListener('visibilitychange', function(){ if(!document.hidden) poll(); });
+}
+
+// ---------- intro, join, log in / out ----------
+function firstOpenTab(){
+  for(var i=0;i<DAYS.length;i++){ if(!dayIsSubmitted(DAYS[i])) return i; }
+  return 4;
+}
+function enterApp(){
+  activeTab = firstOpenTab(); editingDay = null;
+  $('intro').hidden=true; $('app').hidden=false;
+  renderTabs(); renderMain();
+  window.scrollTo({top:0, behavior:'auto'});
+  poll();
+}
+function showIntro(){
+  $('app').hidden=true; $('intro').hidden=false;
+  $('startBtn').disabled=false;
+  $('startBtn').textContent = code ? 'CONTINUE ▸' : 'START — TAP IN ▸';
+  $('showLoginBtn').textContent = code ? 'Not you? Log in with a different code' : 'Already answered? Log back in with your code';
+  $('nameNote').textContent = code ? 'Welcome back — you’re logged in as '+code+'.' : 'Ready. Tap in to begin →';
+}
+
+$('startBtn').addEventListener('click', function(){
+  if(code){ enterApp(); return; }
+  var btn = $('startBtn');
+  btn.disabled = true; btn.textContent = 'JOINING…';
+  api('/api/join', { method:'POST' }).then(function(res){
+    saveCode(res.code); me = res.me; showCodeCard = true;
+    diagLog('joined as '+res.code);
+    enterApp();
+  }).catch(function(err){
+    btn.disabled = false; btn.textContent = 'START — TAP IN ▸';
+    $('nameNote').textContent = 'Couldn’t start: '+err.message;
+  });
+});
+
+$('showLoginBtn').addEventListener('click', function(){
+  $('loginForm').hidden = !$('loginForm').hidden;
+  if(!$('loginForm').hidden) $('codeInput').focus();
+});
+
+$('loginForm').addEventListener('submit', function(e){
+  e.preventDefault();
+  var typed = $('codeInput').value.trim().toUpperCase().replace(/\s+/g,'-');
+  if(!typed) return;
+  $('loginBtn').disabled = true; $('loginMsg').textContent = 'Checking…';
+  api('/api/me', { code: typed }).then(function(res){
+    saveCode(typed); me = res; showCodeCard = false;
+    wallData = {}; wallVersion = '';
+    $('loginMsg').textContent = ''; $('codeInput').value = ''; $('loginForm').hidden = true;
+    diagLog('logged in as '+typed+' ('+res.submittedDays.length+' days submitted)');
+    enterApp();
+  }).catch(function(err){
+    $('loginMsg').textContent = err.message;
+  }).finally(function(){ $('loginBtn').disabled = false; });
+});
+
+// Replaces the old "Reset my answers" button: answers now live on the server, so the safety
+// valve is logging out on this device. It never deletes anything.
+$('logoutBtn').addEventListener('click', function(){
+  if(!window.confirm('Log out on this device?\n\nYour answers stay saved on The Wall. To change them later, log back in with your code:\n\n'+code)) return;
+  clearCode(); me = emptyMe(); wallData = {}; wallVersion = ''; editingDay = null; showCodeCard = false;
+  diagLog('logged out');
+  showIntro();
+  window.scrollTo({top:0, behavior:'auto'});
+});
+
+// ---------- boot ----------
+if(SHOW_DIAGNOSTICS || /[?&]debug=1/.test(location.search)) $('diag').hidden = false;
+$('startBtn').disabled = true;
+api('/api/health').then(function(h){
+  diagLog('server OK — database: '+h.db);
+  if(!code){ showIntro(); return; }
+  return api('/api/me').then(function(res){
+    me = res; showIntro();
+  }).catch(function(err){
+    if(err.status === 401){ diagLog('saved code no longer valid — logged out'); clearCode(); showIntro(); return; }
+    throw err;
+  });
+}).catch(function(err){
+  diagLog('server FAILED: '+err.message);
+  showIntro();
+  $('nameNote').textContent = 'Can’t reach the server right now ('+err.message+'). Try reloading.';
+}).finally(startPolling);
+</script>
+</body>
+</html>
