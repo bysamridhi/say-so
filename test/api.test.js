@@ -112,14 +112,23 @@ test('bad codes and bad answers are rejected', async () => {
   assert.equal((await call('/api/answers', { method: 'DELETE', code })).status, 405);
 });
 
-test('CSV export needs the key and numbers participants anonymously', async () => {
+test('CSV export needs the key and groups answers by question', async () => {
   assert.equal((await call('/api/export')).status, 403);
   const { status, data } = await call('/api/export?key=dev');
   assert.equal(status, 200);
   const lines = data.replace(/^﻿/, '').trim().split('\r\n');
-  assert.match(lines[0], /^"participant","days_submitted","day"/);
+  assert.match(lines[0], /^"day","day_title","question_no","prompt_id","question","answer","answer_type","participant"/);
   assert.equal(lines.length, 1 + 10);
-  assert.match(lines[1], /^"P01","d1 d2 d3 d4","DAY 1","Finish the Sentence","1","d1_q1",/);
+
+  // All of a question's answers sit together, oldest first, before the next question's.
+  const rows = lines.slice(1).map((l) => l.slice(1, -1).split('","'));
+  assert.deepEqual(rows.slice(0, 3).map((r) => [r[3], r[5], r[7]]), [
+    ['d1_q1', 'never interrupts', 'P01'],
+    ['d1_q1', 'talks back', 'P02'],
+    ['d1_q1', 'goes out at night', 'P03'],
+  ]);
+  const promptOrder = rows.map((r) => r[3]);
+  assert.deepEqual(promptOrder, [...promptOrder].sort((a, b) => a.localeCompare(b, 'en', { numeric: true })));
 });
 
 test('seeding fills The Wall with fake participants that --clear removes again', async () => {

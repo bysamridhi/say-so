@@ -138,9 +138,10 @@ Realtime, Auth and the API keys aren't needed. The app only uses the database.
 ### After the session: getting the data out
 
 Open `https://<your-app>.vercel.app/api/export?key=<EXPORT_KEY>` and a CSV downloads. It has one row
-per answer, with the day, the question text and the answer. Participants are numbered `P01`, `P02`…
-in join order, so you can read one person's answers together without knowing who they are. The
-Supabase **Table Editor** can also export each table as CSV.
+per answer, with the day, the question text and the answer. The rows are grouped by question, in the
+same order as the probe, and each question's answers are listed oldest first. Each row also has an
+anonymous participant number (`P01`, `P02`…, in join order) in a later column. The Supabase
+**Table Editor** can also export each table as CSV.
 
 ## Notes
 
