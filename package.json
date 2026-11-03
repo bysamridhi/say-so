@@ -12,6 +12,7 @@
     "test": "node --test",
     "seed": "node scripts/seed.js",
     "db:setup": "node scripts/db-setup.js",
+    "db:clear": "node scripts/db-clear.js",
     "db:reset-local": "rm -rf .local-db"
   },
   "dependencies": {

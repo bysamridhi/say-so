@@ -83,8 +83,8 @@ With the server stopped, you can also seed the database or clear it:
 
 Fake participants are flagged in the database and never appear in the CSV export. To preview a
 full Wall on the deployed site, put the Supabase `DATABASE_URL` in `.env.local` and run
-`npm run seed -- --allow-remote`. Run `npm run seed -- --clear --allow-remote` before the real
-session.
+`npm run seed -- --allow-remote`. Run `npm run seed -- --clear --allow-remote` to remove only the
+fake people, or `npm run db:clear` to wipe everything (see below).
 
 Download everything you've stored: http://localhost:3000/api/export?key=dev.
 Start over with an empty local database: stop the server, then `npm run db:reset-local`.
@@ -124,16 +124,42 @@ Realtime, Auth and the API keys aren't needed. The app only uses the database.
    - `EXPORT_KEY`: any long random string. This is the password for the CSV export.
 3. Deploy. Open `https://<your-app>.vercel.app/api/health`. It should show `"db":"postgres"`.
 
+### Updating the live site
+
+Vercel redeploys automatically on every push to `main`, usually in under a minute. Progress is shown
+under **Deployments** in the Vercel dashboard. If a deploy fails, the previous version stays live.
+
+### Testing on the live site, then wiping it
+
+Run test sessions on `https://<your-app>.vercel.app` as often as you like. To empty The Wall
+afterwards, put the Supabase `DATABASE_URL` in `.env.local` and run:
+
+```bash
+npm run db:clear
+```
+
+The command shows how many participants and answers there are, then asks you to type `DELETE`. It
+removes **everything, real and fake**, so the next session starts from zero. Phones that still have
+an old code are sent back to the START screen with a note, so you don't need to clear anything on
+them. The no-terminal alternative is the Supabase **SQL Editor**: run
+`truncate answers, day_submissions, participants;`.
+
+> While `DATABASE_URL` is set in `.env.local`, `npm run dev` also uses the live database. The
+> server prints a warning when this happens. Comment the line out (`# DATABASE_URL=…`) to go back to
+> the local test database.
+
+### Diagnostics panel
+
+The diagnostics readout (connection status and save results) is hidden for everyone. To see it,
+open the site with `?debug=1` at the end, e.g. `https://<your-app>.vercel.app/?debug=1`.
+
 ### Before the class session
 
 - [ ] **Wake the database.** Free Supabase projects pause after about a week with no activity. Open the
       dashboard a day before and restore the project if it says *Paused*.
 - [ ] Test on at least two real phones at the same time, on the deployed URL.
-- [ ] **Clear test answers.** In Supabase **SQL Editor**, run
-      `truncate answers, day_submissions, participants;`. This permanently deletes everything, so only
-      run it before the real session.
-- [ ] Hide the diagnostics readout if you want: set `SHOW_DIAGNOSTICS = false` near the top of the
-      script in `public/index.html` and push. Adding `?debug=1` to the URL still shows it.
+- [ ] **Clear test answers** with `npm run db:clear`. Afterwards, `https://<your-app>.vercel.app/api/wall`
+      should show `"total":0`.
 
 ### After the session: getting the data out
 

@@ -91,7 +91,9 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
   const port = Number(process.env.PORT) || 3000;
   const server = createServer();
   server.listen(port, '0.0.0.0', () => {
-    const where = db.kind === 'local' ? `local PGlite database in ${process.env.LOCAL_DB_DIR || '.local-db/'}` : 'DATABASE_URL';
+    const where = db.kind === 'local'
+      ? `local PGlite database in ${process.env.LOCAL_DB_DIR || '.local-db/'}`
+      : `${new URL(process.env.DATABASE_URL).hostname}\n\n  ⚠ This is the DATABASE_URL from .env.local — answers here are your LIVE data.\n    Comment that line out to test against a local database instead.`;
     console.log(`\n  Say So is running — database: ${where}\n`);
     console.log(`  This computer:   http://localhost:${port}`);
     for (const ip of lanAddresses()) console.log(`  Phone (same Wi-Fi): http://${ip}:${port}`);

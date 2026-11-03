@@ -171,8 +171,8 @@ footer{max-width:720px;margin:0 auto;padding:10px 18px 40px;font-size:11.5px;col
 import { DAYS } from './prompts.js';
 
 // Diagnostics readout in the header (connection + save results with real error text) so problems
-// can be screenshotted from a phone. Set to false before the real presentation; ?debug=1 forces it on.
-var SHOW_DIAGNOSTICS = true;
+// can be screenshotted from a phone. Hidden for everyone; open the page with ?debug=1 to see it.
+var SHOW_DIAGNOSTICS = false;
 var POLL_MS = 3000;
 var CODE_KEY = 'say_so_code';
 
@@ -207,6 +207,8 @@ function api(path, opts){
   return fetch(path, { method: opts.method || 'GET', headers: headers, body: opts.body ? JSON.stringify(opts.body) : undefined })
     .then(function(res){
       return res.json().catch(function(){ return {}; }).then(function(data){
+        // The saved code stopped working (e.g. the data was cleared between test runs).
+        if(res.status === 401 && !opts.code && code) sessionGone();
         if(!res.ok){ var err = new Error(data.error || ('HTTP '+res.status)); err.status = res.status; throw err; }
         return data;
       });
@@ -510,11 +512,22 @@ $('loginForm').addEventListener('submit', function(e){
 // valve is logging out on this device. It never deletes anything.
 $('logoutBtn').addEventListener('click', function(){
   if(!window.confirm('Log out on this device?\n\nYour answers stay saved on The Wall. To change them later, log back in with your code:\n\n'+code)) return;
-  clearCode(); me = emptyMe(); wallData = {}; wallVersion = ''; editingDay = null; showCodeCard = false;
+  forgetThisDevice();
   diagLog('logged out');
   showIntro();
   window.scrollTo({top:0, behavior:'auto'});
 });
+
+function forgetThisDevice(){
+  clearCode(); me = emptyMe(); wallData = {}; wallVersion = ''; editingDay = null; showCodeCard = false;
+}
+function sessionGone(){
+  forgetThisDevice();
+  diagLog('saved code no longer valid — logged out');
+  showIntro();
+  $('nameNote').textContent = 'Your old code doesn’t work any more (the answers were cleared). Tap in to start again →';
+  window.scrollTo({top:0, behavior:'auto'});
+}
 
 // ---------- boot ----------
 if(SHOW_DIAGNOSTICS || /[?&]debug=1/.test(location.search)) $('diag').hidden = false;
@@ -525,7 +538,7 @@ api('/api/health').then(function(h){
   return api('/api/me').then(function(res){
     me = res; showIntro();
   }).catch(function(err){
-    if(err.status === 401){ diagLog('saved code no longer valid — logged out'); clearCode(); showIntro(); return; }
+    if(err.status === 401) return; // sessionGone() already sent them back to the start
     throw err;
   });
 }).catch(function(err){
