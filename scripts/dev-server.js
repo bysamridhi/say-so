@@ -1,10 +1,11 @@
 // Local stand-in for Vercel: serves public/ and runs the same api/*.js handlers.
 //   npm run dev            -> http://localhost:3000 (also printed: a LAN address for testing from a phone)
+//   npm run dev -- --seed  -> same, after adding 30 fake participants (--seed=60 for more)
 // Without DATABASE_URL it uses a local Postgres (PGlite) stored in .local-db/.
 import http from 'node:http';
 import os from 'node:os';
 import path from 'node:path';
-import { existsSync, readdirSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
@@ -52,6 +53,19 @@ function send(res, status, type, body) {
   res.end(body);
 }
 
+// PGlite can only be opened by one process at a time, so the dev server leaves a pid file next to
+// the local database while it runs. Returns that pid if the server is still alive.
+const pidFile = () => path.resolve(ROOT, process.env.LOCAL_DB_DIR || '.local-db') + '.pid';
+export function localDbHeldBy() {
+  try {
+    const pid = Number(readFileSync(pidFile(), 'utf8'));
+    process.kill(pid, 0);
+    return pid;
+  } catch {
+    return null;
+  }
+}
+
 function lanAddresses() {
   return Object.values(os.networkInterfaces()).flat()
     .filter((i) => i && i.family === 'IPv4' && !i.internal)
@@ -65,6 +79,15 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
   process.chdir(ROOT);
   const { getDb } = await import('../lib/db.js');
   const db = await getDb();
+  const holdsLocalDb = db.kind === 'local' && process.env.LOCAL_DB_DIR !== 'memory';
+  if (holdsLocalDb) writeFileSync(pidFile(), String(process.pid));
+  const seedArg = process.argv.find((a) => a === '--seed' || a.startsWith('--seed='));
+  if (seedArg) {
+    const { seedDatabase } = await import('../lib/seed.js');
+    const finished = await seedDatabase(db, Number(seedArg.split('=')[1]) || 30);
+    console.log(`\n  Added fake participants. Log in with ${finished[0]} to see The Wall.`);
+    console.log('  Remove them later with: npm run seed -- --clear (with the server stopped)');
+  }
   const port = Number(process.env.PORT) || 3000;
   const server = createServer();
   server.listen(port, '0.0.0.0', () => {
@@ -78,6 +101,7 @@ if (process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href) 
   const stop = async () => {
     server.close();
     await db.close();
+    if (holdsLocalDb) rmSync(pidFile(), { force: true });
     process.exit(0);
   };
   process.on('SIGINT', stop);

@@ -65,9 +65,26 @@ Each browser storage gets its own participant, so any of these works:
   same Wi-Fi.
 - **Switch accounts in one window:** **LOG OUT** in the header, then **START** for a new
   participant, or log back in with an earlier code.
-- **Fill the wall with fake people:** with `npm run dev` running, `npm run seed` (or
-  `npm run seed -- 25`) creates fake participants and prints their codes so you can log in as any of
-  them.
+
+### Seeing a full Wall (fake data)
+
+```bash
+npm run dev -- --seed
+```
+
+This starts the server after adding 30 fake participants, each with believable answers to every
+question. Use `--seed=80` for a bigger crowd. The terminal prints a code: log in with it to go
+straight to The Wall.
+
+With the server stopped, you can also seed the database or clear it:
+
+- `npm run seed`: adds 30 fake participants and prints a few codes. `npm run seed -- 80` adds 80.
+- `npm run seed -- --clear`: removes every fake participant and their answers. Real answers stay.
+
+Fake participants are flagged in the database and never appear in the CSV export. To preview a
+full Wall on the deployed site, put the Supabase `DATABASE_URL` in `.env.local` and run
+`npm run seed -- --allow-remote`. Run `npm run seed -- --clear --allow-remote` before the real
+session.
 
 Download everything you've stored: http://localhost:3000/api/export?key=dev.
 Start over with an empty local database: stop the server, then `npm run db:reset-local`.
@@ -90,7 +107,7 @@ is rejected.
 1. Create a project at [supabase.com](https://supabase.com). Choose the region **East US (North
    Virginia)**, which is close to Vercel's default function region. Save the database password.
 2. Create the tables. Use either option:
-   - **SQL Editor → New query**: paste [`supabase/migrations/20261102000000_init.sql`](supabase/migrations/20261102000000_init.sql) and **Run**.
+   - **SQL Editor → New query**: paste each file in [`supabase/migrations/`](supabase/migrations/), oldest first, and **Run** it.
    - Or locally: put `DATABASE_URL` in `.env.local` (see step 3) and run `npm run db:setup`.
 3. Get the connection string: **Connect** (top bar) → **Transaction pooler**. It looks like
    `postgresql://postgres.abcd1234:[YOUR-PASSWORD]@aws-0-us-east-1.pooler.supabase.com:6543/postgres`.

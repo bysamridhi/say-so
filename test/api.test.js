@@ -121,3 +121,23 @@ test('CSV export needs the key and numbers participants anonymously', async () =
   assert.equal(lines.length, 1 + 10);
   assert.match(lines[1], /^"P01","d1 d2 d3 d4","DAY 1","Finish the Sentence","1","d1_q1",/);
 });
+
+test('seeding fills The Wall with fake participants that --clear removes again', async () => {
+  const { seedDatabase, clearSeed } = await import('../lib/seed.js');
+  const db = await getDb();
+  const before = (await call('/api/wall')).data.total;
+  const finished = await seedDatabase(db, 12);
+  assert.ok(finished.length > 0);
+
+  // A seeded code that finished all four days opens a well-filled Wall.
+  const wall = (await call('/api/wall?full=1', { code: finished[0] })).data;
+  assert.ok(wall.total > before + 100);
+  assert.ok(wall.answers.d1_q1.length > 8);
+
+  // The CSV export only contains the real participants' answers.
+  const csv = (await call('/api/export?key=dev')).data.replace(/^﻿/, '').trim().split('\r\n');
+  assert.equal(csv.length, 1 + 10);
+
+  assert.equal(await clearSeed(db), 12);
+  assert.equal((await call('/api/wall')).data.total, before);
+});

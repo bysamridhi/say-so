@@ -1,7 +1,7 @@
 // GET /api/export?key=… — downloads every answer as a CSV for analysis after the session.
 // Participants are numbered P01, P02… by join order so one person's answers can be read
-// together, without anything identifying who they are. Requires the EXPORT_KEY env var
-// (locally it defaults to "dev").
+// together, without anything identifying who they are. Fake participants from `npm run seed`
+// are never included. Requires the EXPORT_KEY env var (locally it defaults to "dev").
 import { createHash, timingSafeEqual } from 'node:crypto';
 import { getDb } from '../lib/db.js';
 import { HttpError, route, searchParams } from '../lib/http.js';
@@ -32,10 +32,12 @@ export default route({
       `select p.id, row_number() over (order by p.created_at, p.id)::int as n,
               coalesce(string_agg(d.day_key, ' ' order by d.day_key), '') as days
          from participants p left join day_submissions d on d.participant_id = p.id
+        where not p.is_seed
         group by p.id, p.created_at`,
     );
     const pmap = new Map(participants.map((p) => [p.id, p]));
-    const answers = await db.query('select participant_id, prompt_id, text, is_chip, created_at, updated_at from answers');
+    const answers = (await db.query('select participant_id, prompt_id, text, is_chip, created_at, updated_at from answers'))
+      .filter((a) => pmap.has(a.participant_id)); // fake participants from `npm run seed` are left out
     answers.sort((a, b) => pmap.get(a.participant_id).n - pmap.get(b.participant_id).n
       || (ORDER.get(a.prompt_id) ?? 999) - (ORDER.get(b.prompt_id) ?? 999));
 
